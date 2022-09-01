@@ -75,14 +75,15 @@ def lagrange_interpolation(input_data):
 
 ## OBJECTS ##
 class Matrix:
-	def __init__(self, array):
+	def __init__(self, array, identity=False):
 		self.array = array
 		self.columns = [[row[i] for row in self.array] for i in range(len(self.array[0]))]
 		self.identity =[]
-		for i in range(len(self.array)):
-			row = [0] * len(self.columns)
-			row[i] = 1
-			self.identity.append(row[:])
+		if identity:
+			for i in range(len(self.array)):
+				row = [0] * len(self.columns)
+				row[i] = 1
+				self.identity.append(row[:])
 
 	def __str__(self):
 		string = [" "]
@@ -300,7 +301,40 @@ def char_polynomial(matrix):
 def find_eigenvalue(matrix, x, n):
 	return newtons_method(char_polynomial(matrix), x, n)
 
+class Transformations2D:
+	@staticmethod
+	def strech_x(k):
+		return Matrix([[k, 0], [0, 1]])
 
-P = polynomial([(1, 2), (2, 1), (1, 0)])
-Q = polynomial([(1, 2), (4, 1), (4, 0)])
-print((P + Q).coeffs)
+	@staticmethod
+	def strech_y(k):
+		return Matrix([[1, 0], [0, k]])
+
+	@staticmethod
+	def squeeze_x(k):
+		return Matrix([[k, 0], [0, 1/k]])
+
+	@staticmethod
+	def rotation(theta):
+		return Matrix([[math.cos(theta), math.sin(theta)], [-math.sin(theta), math.cos(theta)]])
+	
+	@staticmethod
+	def shear(self, k):
+		return Matrix([[1, k], [0, 1]])
+
+	@staticmethod
+	def reflect(vect):
+		return Matrix([[vect[0]**2 - vect[1]**2, 2*vect[0]*vect[1]], [2*vect[0]*vect[1], vect[1]**2 - vect[0]**2]]) * (1 / (vect[0] ** 2 + vect[1] ** 2))
+
+	@staticmethod
+	def orthogonal_projection(vect):
+		return Matrix([[vect[0]**2, vect[0]*vect[1]], [vect[0]*vect[1], vect[1]**2]]) * (1 / (vect[0] ** 2 + vect[1] ** 2))
+i = Matrix([[1], [0]])
+j = Matrix([[0], [1]])
+i_prime = Transformations2D.rotation(math.pi / 3) * i
+j_prime = Transformations2D.rotation(-math.pi / 12) * j	
+plt.arrow(0, 0, i.array[0][0], i.array[1][0])
+plt.arrow(0, 0, j.array[0][0], j.array[1][0])
+plt.arrow(0, 0, i_prime.array[0][0], i_prime.array[1][0], color="red")
+plt.arrow(0, 0, j_prime.array[0][0], j_prime.array[1][0], color="red")
+plt.show()
